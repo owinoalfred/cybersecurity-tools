@@ -294,7 +294,7 @@ def main():
                        help="Hash type (default: md5)")
     parser.add_argument("--threads", type=int, default=4, 
                        help="Number of threads (default: 4)")
-    parser.add_argument("--wordlist", default="rockyou.txt", 
+    parser.add_argument("--wordlist", default="ncsc_top100k.txt", 
                        help="Wordlist file for dictionary/hybrid attacks")
     parser.add_argument("--min-length", type=int, default=1, 
                        help="Minimum length for brute force (default: 1)")

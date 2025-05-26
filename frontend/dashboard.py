@@ -652,7 +652,7 @@ def show_hash_cracker(tools_dir):
         hash_input = st.text_input("Hash to crack:", placeholder="Enter hash here...")
         hash_type = st.selectbox("Hash Type:", ["auto", "md5", "sha1", "sha256", "sha512"])
         strategy = st.selectbox("Attack Strategy:", ["dictionary", "brute_force", "hybrid"])
-        wordlist_option = st.selectbox("Wordlist:", ["Built-in", "Custom"])
+        wordlist_option = st.selectbox("Wordlist:", ["Built-in", "NCSC Top 100k", "Custom"])
         
         if wordlist_option == "Custom":
             custom_wordlist = st.text_input("Wordlist path:", placeholder="Path to wordlist file")
@@ -666,11 +666,17 @@ def show_hash_cracker(tools_dir):
         - **SHA512** - 128 character hex
         - **Auto** - Automatic detection
         """)
-        
         st.markdown("### Attack Strategies")
         st.markdown("""        - **Dictionary** - Uses wordlist-based attacks
         - **Brute Force** - Tries all possible combinations
         - **Hybrid** - Combines dictionary and brute force
+        """)
+        
+        st.markdown("### Wordlist Options")
+        st.markdown("""
+        - **Built-in** - Small test wordlist (17 passwords)
+        - **NCSC Top 100k** - Real-world pwned passwords (100,000 entries)
+        - **Custom** - Your own wordlist file
         """)
         if st.button("🚀 Start Cracking", key="crack_hash"):
             if hash_input:
@@ -679,14 +685,17 @@ def show_hash_cracker(tools_dir):
                 
                 if hash_type != "auto":
                     args.extend(["--type", hash_type])
-                
-                # Handle wordlist selection
+                  # Handle wordlist selection
                 if wordlist_option == "Custom" and 'custom_wordlist' in locals():
                     args.extend(["--wordlist", custom_wordlist])
                 elif wordlist_option == "Built-in":
                     # Use the built-in test wordlist
                     builtin_wordlist = tools_dir.parent / "test_wordlist.txt"
                     args.extend(["--wordlist", str(builtin_wordlist)])
+                elif wordlist_option == "NCSC Top 100k":
+                    # Use the NCSC Top 100k pwned passwords wordlist
+                    ncsc_wordlist = tools_dir.parent / "ncsc_top100k.txt"
+                    args.extend(["--wordlist", str(ncsc_wordlist)])
                 
                 with st.spinner("Cracking hash..."):
                     stdout, stderr, returncode = run_tool_command(tool_path, args)

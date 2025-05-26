@@ -7,6 +7,7 @@ import ssl
 import socket
 import json
 import re
+import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -87,16 +88,15 @@ class AdvancedWebScanner:
             if is_vulnerable:
                 if severity == "CRITICAL":
                     color = Fore.MAGENTA
-                    prefix = "[CRITICAL]"
-                elif severity == "HIGH":
+                    prefix = "[CRITICAL]"                elif severity == "HIGH":
                     color = Fore.RED
-                    prefix = "🔴 HIGH"
+                    prefix = "[HIGH]"
                 elif severity == "MEDIUM":
                     color = Fore.YELLOW
-                    prefix = "🟡 MEDIUM"
+                    prefix = "[MEDIUM]"
                 else:
                     color = Fore.CYAN
-                    prefix = "🔵 LOW"
+                    prefix = "[LOW]"
                 print(f"{color}[{prefix}] {message}{Style.RESET_ALL}")
                 self.vulnerabilities_found += 1
             else:
