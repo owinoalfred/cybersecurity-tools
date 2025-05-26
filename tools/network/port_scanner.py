@@ -138,10 +138,10 @@ class AdvancedPortScanner:
             elif self.scan_type == "both":
                 self.tcp_connect_scan(ip, port)
                 self.udp_scan(ip, port)
-            
-            self.port_queue.task_done()
-            # Rate limiting to avoid overwhelming target
-            time.sleep(0.01)
+              self.port_queue.task_done()
+            # Minimal rate limiting - only for very aggressive scans
+            if self.threads > 100:
+                time.sleep(0.001)
 
     def scan(self):
         """Main scanning function with enhanced output."""

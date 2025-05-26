@@ -436,7 +436,7 @@ class AdvancedPacketSniffer:
         
         # Add suspicious indicator
         if packet_info.suspicious:
-            output += f" ⚠️  SUSPICIOUS: {', '.join(packet_info.tags)}"
+            output += f" [SUSPICIOUS]: {', '.join(packet_info.tags)}"
         
         # Add payload preview
         if packet_info.payload_preview:

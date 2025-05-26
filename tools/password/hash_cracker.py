@@ -203,7 +203,7 @@ class AdvancedHashCracker:
                             self.found = password
                             self.attempts += local_attempts
                             elapsed = time.time() - self.start_time
-                            print(f"\n{Fore.GREEN}🎉 PASSWORD FOUND: {password}{Style.RESET_ALL}")
+                            print(f"\n{Fore.GREEN}[SUCCESS] PASSWORD FOUND: {password}{Style.RESET_ALL}")
                             print(f"Time elapsed: {elapsed:.2f} seconds")
                             print(f"Attempts: {self.attempts:,}")
                             print(f"Rate: {self.attempts/elapsed:,.0f} attempts/second")
@@ -276,7 +276,7 @@ class AdvancedHashCracker:
         # Final results
         elapsed = time.time() - self.start_time
         if not self.found:
-            print(f"\n{Fore.RED}❌ Password not found{Style.RESET_ALL}")
+            print(f"\n{Fore.RED}[FAILED] Password not found{Style.RESET_ALL}")
             print(f"Time elapsed: {elapsed:.2f} seconds")
             print(f"Attempts: {self.attempts:,}")
             print(f"Average rate: {self.attempts/elapsed:,.0f} attempts/second")

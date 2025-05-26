@@ -208,14 +208,14 @@ def get_tools_directory():
     current_dir = Path(__file__).parent
     return current_dir.parent / "tools"
 
-def run_tool_command(tool_path, args):
+def run_tool_command(tool_path, args, timeout=60):
     """Run a tool command and return the output"""
     try:
         cmd = [sys.executable, str(tool_path)] + args
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, cwd=str(tool_path.parent))
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, cwd=str(tool_path.parent))
         return result.stdout, result.stderr, result.returncode
     except subprocess.TimeoutExpired:
-        return "", "Command timed out after 60 seconds", 1
+        return "", f"Command timed out after {timeout} seconds", 1
     except Exception as e:
         return "", f"Error running command: {str(e)}", 1
 
@@ -651,6 +651,7 @@ def show_hash_cracker(tools_dir):
     with col1:
         hash_input = st.text_input("Hash to crack:", placeholder="Enter hash here...")
         hash_type = st.selectbox("Hash Type:", ["auto", "md5", "sha1", "sha256", "sha512"])
+        strategy = st.selectbox("Attack Strategy:", ["dictionary", "brute_force", "hybrid"])
         wordlist_option = st.selectbox("Wordlist:", ["Built-in", "Custom"])
         
         if wordlist_option == "Custom":
@@ -665,22 +666,33 @@ def show_hash_cracker(tools_dir):
         - **SHA512** - 128 character hex
         - **Auto** - Automatic detection
         """)
-    
-    if st.button("🚀 Start Cracking", key="crack_hash"):
-        if hash_input:
-            tool_path = tools_dir / "password" / "hash_cracker.py"
-            args = [hash_input]
-            
-            if hash_type != "auto":
-                args.extend(["--type", hash_type])
-            
-            if wordlist_option == "Custom" and 'custom_wordlist' in locals():
-                args.extend(["--wordlist", custom_wordlist])
-            with st.spinner("Cracking hash..."):
-                stdout, stderr, returncode = run_tool_command(tool_path, args)
-                display_results(stdout, stderr, returncode, "Hash Cracker")
-        else:
-            st.error("Please enter a hash to crack")
+        
+        st.markdown("### Attack Strategies")
+        st.markdown("""        - **Dictionary** - Uses wordlist-based attacks
+        - **Brute Force** - Tries all possible combinations
+        - **Hybrid** - Combines dictionary and brute force
+        """)
+        if st.button("🚀 Start Cracking", key="crack_hash"):
+            if hash_input:
+                tool_path = tools_dir / "password" / "hash_cracker.py"
+                args = [hash_input, strategy]
+                
+                if hash_type != "auto":
+                    args.extend(["--type", hash_type])
+                
+                # Handle wordlist selection
+                if wordlist_option == "Custom" and 'custom_wordlist' in locals():
+                    args.extend(["--wordlist", custom_wordlist])
+                elif wordlist_option == "Built-in":
+                    # Use the built-in test wordlist
+                    builtin_wordlist = tools_dir.parent / "test_wordlist.txt"
+                    args.extend(["--wordlist", str(builtin_wordlist)])
+                
+                with st.spinner("Cracking hash..."):
+                    stdout, stderr, returncode = run_tool_command(tool_path, args)
+                    display_results(stdout, stderr, returncode, "Hash Cracker")
+            else:
+                st.error("Please enter a hash to crack")
 
 def show_password_checker(tools_dir):
     """Display password checker interface"""
@@ -729,10 +741,9 @@ def show_port_scanner(tools_dir):
         
         if port_range == "Custom":
             custom_ports = st.text_input("Custom Ports:", placeholder="1-65535 or 80,443,8080")
-    
-    with col2:
-        threads = st.slider("Threads:", 1, 100, 50)
-        timeout = st.slider("Timeout (seconds):", 1, 10, 3)
+      with col2:
+        threads = st.slider("Threads:", 1, 100, 20)
+        timeout = st.slider("Timeout (seconds):", 1, 10, 1)
         
         st.markdown("### Scan Features")
         st.markdown("""
@@ -740,6 +751,13 @@ def show_port_scanner(tools_dir):
         - **Service Detection** - Identify running services
         - **OS Fingerprinting** - Basic OS detection
         - **Export Results** - JSON/CSV output
+        """)
+        
+        st.markdown("### Performance Tips")
+        st.markdown("""
+        - **Lower timeout** = faster scans but may miss slow services
+        - **More threads** = faster scanning (20-50 recommended)
+        - **Top 100 ports** for quick scans
         """)
     
     if st.button("🚀 Start Scan", key="start_port_scan"):
@@ -768,9 +786,10 @@ def show_port_scanner(tools_dir):
             args = [target_clean, ports, "--threads", str(threads), "--timeout", str(timeout), "--type", scan_type_lower]
             
             st.info(f"🔍 Running: python {tool_path} {' '.join(args)}")
-            
-            with st.spinner(f"Scanning {target_clean}..."):
-                stdout, stderr, returncode = run_tool_command(tool_path, args)
+              with st.spinner(f"Scanning {target_clean}..."):
+                # Use extended timeout for port scanning (up to 5 minutes)
+                scan_timeout = 300 if port_range in ["Top 1000", "All Ports"] else 120
+                stdout, stderr, returncode = run_tool_command(tool_path, args, timeout=scan_timeout)
                 display_results(stdout, stderr, returncode, "port_scanner")
         else:
             st.error("Please enter a target host")

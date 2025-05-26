@@ -404,7 +404,7 @@ class AdvancedIDS:
             # Color coding by severity
             if severity == "CRITICAL":
                 color = Fore.MAGENTA
-                prefix = "🚨 CRITICAL"
+                prefix = "[CRITICAL]"
             elif severity == "HIGH":
                 color = Fore.RED
                 prefix = "🔴 HIGH"
@@ -430,7 +430,7 @@ class AdvancedIDS:
             if severity in ["CRITICAL", "HIGH"] and event.src_ip not in self.banned_ips:
                 self.banned_ips[event.src_ip] = current_time
                 self.threats_blocked += 1
-                print(f"  {Fore.RED}🛡️  Blocked {event.src_ip} for {self.ban_time//60} minutes{Style.RESET_ALL}")
+                print(f"  {Fore.RED}[BLOCKED] {event.src_ip} for {self.ban_time//60} minutes{Style.RESET_ALL}")
                 logging.warning(f"Blocked IP {event.src_ip} due to {threat_type}")
 
     def establish_baseline(self):
@@ -450,7 +450,7 @@ class AdvancedIDS:
         conn = self.setup_socket()
         is_windows = platform.system() == "Windows"
         
-        print(f"{Fore.MAGENTA}🛡️  Advanced Intrusion Detection System v2.0{Style.RESET_ALL}")
+        print(f"{Fore.MAGENTA}[IDS] Advanced Intrusion Detection System v2.0{Style.RESET_ALL}")
         print(f"{Fore.CYAN}Target Platform: {platform.system()}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}Learning Period: {self.learning_period}s{Style.RESET_ALL}")
         print(f"{Fore.CYAN}Detection Threshold: {self.threshold} req/min{Style.RESET_ALL}")
@@ -540,7 +540,7 @@ class AdvancedIDS:
         runtime = time.time() - self.baseline_start_time
         
         print(f"{Fore.CYAN}{'='*80}{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}📊 Advanced IDS Session Summary{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}[STATS] Advanced IDS Session Summary{Style.RESET_ALL}")
         print(f"{Fore.CYAN}{'='*80}{Style.RESET_ALL}")
         print(f"Runtime: {runtime/60:.1f} minutes")
         print(f"Total packets processed: {self.packet_count:,}")

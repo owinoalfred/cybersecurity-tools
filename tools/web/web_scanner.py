@@ -87,7 +87,7 @@ class AdvancedWebScanner:
             if is_vulnerable:
                 if severity == "CRITICAL":
                     color = Fore.MAGENTA
-                    prefix = "🚨 CRITICAL"
+                    prefix = "[CRITICAL]"
                 elif severity == "HIGH":
                     color = Fore.RED
                     prefix = "🔴 HIGH"
@@ -490,7 +490,7 @@ class AdvancedWebScanner:
             print(f"{Fore.GREEN}🎉 No vulnerabilities found - Target appears secure!{Style.RESET_ALL}")
         else:
             color = Fore.RED if self.vulnerabilities_found > 5 else Fore.YELLOW
-            print(f"{color}⚠️  Total vulnerabilities found: {self.vulnerabilities_found}{Style.RESET_ALL}")
+            print(f"{color}[WARNING] Total vulnerabilities found: {self.vulnerabilities_found}{Style.RESET_ALL}")
             print(f"{Fore.CYAN}💡 Review the findings above and implement appropriate fixes{Style.RESET_ALL}")
 
 def main():
