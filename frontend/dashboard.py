@@ -741,7 +741,7 @@ def show_port_scanner(tools_dir):
         
         if port_range == "Custom":
             custom_ports = st.text_input("Custom Ports:", placeholder="1-65535 or 80,443,8080")
-      with col2:
+    with col2:
         threads = st.slider("Threads:", 1, 100, 20)
         timeout = st.slider("Timeout (seconds):", 1, 10, 1)
         
@@ -786,7 +786,7 @@ def show_port_scanner(tools_dir):
             args = [target_clean, ports, "--threads", str(threads), "--timeout", str(timeout), "--type", scan_type_lower]
             
             st.info(f"🔍 Running: python {tool_path} {' '.join(args)}")
-              with st.spinner(f"Scanning {target_clean}..."):
+            with st.spinner(f"Scanning {target_clean}..."):
                 # Use extended timeout for port scanning (up to 5 minutes)
                 scan_timeout = 300 if port_range in ["Top 1000", "All Ports"] else 120
                 stdout, stderr, returncode = run_tool_command(tool_path, args, timeout=scan_timeout)

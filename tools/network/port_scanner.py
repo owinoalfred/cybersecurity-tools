@@ -25,6 +25,7 @@ class AdvancedPortScanner:
         self.closed_ports = []
         self.port_queue = queue.Queue()
         self.lock = threading.Lock()
+        self.scanned_count = 0  # Track progress
         
         # Enhanced service detection
         self.common_services = {
@@ -108,7 +109,7 @@ class AdvancedPortScanner:
             
             if banner:
                 # Detect service based on banner
-                banner_lower = banner.lower()
+                banner_lower = banner.lower()   
                 if 'ssh' in banner_lower:
                     return f"SSH ({banner.strip()[:50]})"
                 elif 'ftp' in banner_lower:
@@ -122,7 +123,7 @@ class AdvancedPortScanner:
             pass
         
         return self.common_services.get(port, "Unknown")
-
+    
     def worker(self, ip):
         """Thread worker function."""
         while True:
@@ -138,7 +139,16 @@ class AdvancedPortScanner:
             elif self.scan_type == "both":
                 self.tcp_connect_scan(ip, port)
                 self.udp_scan(ip, port)
-              self.port_queue.task_done()
+            
+            self.port_queue.task_done()
+            
+            # Progress reporting and minimal rate limiting
+            with self.lock:
+                self.scanned_count += 1
+                if self.scanned_count % 50 == 0:  # Report every 50 ports
+                    progress = (self.scanned_count / len(self.ports)) * 100
+                    print(f"\r{Fore.YELLOW}[PROGRESS] {self.scanned_count}/{len(self.ports)} ports ({progress:.1f}%){Style.RESET_ALL}", end='', flush=True)
+            
             # Minimal rate limiting - only for very aggressive scans
             if self.threads > 100:
                 time.sleep(0.001)
