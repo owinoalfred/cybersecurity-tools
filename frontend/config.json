@@ -1,0 +1,57 @@
+{
+    "dashboard": {
+        "title": "CyberSec Tools Dashboard",
+        "theme": "cybersecurity",
+        "port": 8501,
+        "host": "localhost"
+    },
+    "security": {
+        "admin_tools": ["ids", "packet_sniffer"],
+        "timeout_seconds": 60,
+        "max_concurrent_scans": 3
+    },
+    "tools": {
+        "hash_cracker": {
+            "enabled": true,
+            "default_wordlist": "rockyou.txt",
+            "max_attempts": 1000000
+        },
+        "password_checker": {
+            "enabled": true,
+            "breach_checking": true,
+            "min_strength": 6
+        },
+        "port_scanner": {
+            "enabled": true,
+            "default_threads": 50,
+            "default_timeout": 3,
+            "max_ports": 65535
+        },
+        "web_scanner": {
+            "enabled": true,
+            "max_pages": 100,
+            "default_delay": 0.5,
+            "user_agent": "CyberSec-Scanner/1.0"
+        },
+        "ids": {
+            "enabled": true,
+            "requires_admin": true,
+            "default_interface": "auto"
+        },
+        "packet_sniffer": {
+            "enabled": true,
+            "requires_admin": true,
+            "default_count": 100
+        }
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "dashboard.log",
+        "max_size_mb": 10
+    },
+    "export": {
+        "formats": ["json", "csv", "txt"],
+        "default_format": "json",
+        "output_directory": "exports"
+    }
+}

@@ -1,0 +1,17 @@
+hello
+world
+test
+password
+admin
+letmein
+123456
+qwerty
+abc123
+welcome
+monkey
+dragon
+master
+freedom
+password123
+hello123
+test123
