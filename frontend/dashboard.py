@@ -211,6 +211,16 @@ def get_tools_directory():
 def run_tool_command(tool_path, args, timeout=60):
     """Run a tool command and return the output"""
     try:
+        # Check if this tool requires admin privileges
+        tool_name = tool_path.stem  # Get filename without extension
+        admin_tools = ["ids", "packet_sniffer"]  # Tools requiring admin privileges
+        
+        if tool_name in admin_tools:
+            # Check if we're already running as admin
+            if not check_admin_privileges():
+                # Auto-elevate with PowerShell for admin-required tools
+                return run_tool_with_admin_elevation(tool_path, args, timeout)
+        
         cmd = [sys.executable, str(tool_path)] + args
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, cwd=str(tool_path.parent))
         return result.stdout, result.stderr, result.returncode
@@ -218,6 +228,62 @@ def run_tool_command(tool_path, args, timeout=60):
         return "", f"Command timed out after {timeout} seconds", 1
     except Exception as e:
         return "", f"Error running command: {str(e)}", 1
+
+def check_admin_privileges():
+    """Check if running with administrator privileges"""
+    try:
+        import ctypes
+        if os.name == 'nt':  # Windows
+            return ctypes.windll.shell32.IsUserAnAdmin()
+        else:  # Unix/Linux
+            return os.getuid() == 0
+    except:
+        return False
+
+def run_tool_with_admin_elevation(tool_path, args, timeout=60):
+    """Run a tool with automatic admin privilege elevation"""
+    try:
+        # Construct PowerShell command to run with elevation
+        tool_module = f"tools.{tool_path.parent.name}.{tool_path.stem}"
+        python_args = ' '.join(args) if args else ''
+        
+        # PowerShell command to run as admin
+        ps_command = f"""
+        $ErrorActionPreference = 'Stop'
+        try {{
+            cd '{tool_path.parent.parent.parent}'
+            python -m {tool_module} {python_args}
+        }} catch {{
+            Write-Host "Error: $_" -ForegroundColor Red
+            exit 1
+        }}
+        """
+        
+        # Create a temporary PowerShell script
+        temp_script = tool_path.parent.parent.parent / "temp_admin_script.ps1"
+        with open(temp_script, 'w') as f:
+            f.write(ps_command)
+        
+        # Run PowerShell as admin
+        cmd = [
+            "powershell", 
+            "-Command", 
+            f"Start-Process powershell -Verb RunAs -ArgumentList '-WindowStyle Hidden', '-ExecutionPolicy Bypass', '-File \"{temp_script}\"' -Wait"
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 30)
+        
+        # Clean up temp script
+        if temp_script.exists():
+            temp_script.unlink()
+        
+        if result.returncode == 0:
+            return "✅ Tool executed with admin privileges successfully", "", 0
+        else:
+            return "", f"Admin elevation failed: {result.stderr}", result.returncode
+            
+    except Exception as e:
+        return "", f"Error during admin elevation: {str(e)}", 1
 
 def display_results(stdout, stderr, returncode, tool_name=""):
     """Display results with proper formatting and status"""

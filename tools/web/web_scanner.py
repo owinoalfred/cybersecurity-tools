@@ -72,7 +72,6 @@ class AdvancedWebScanner:
             "<script>prompt('XSS')</script>",
             "<img src=\"x\" onerror=\"alert('XSS')\">"
         ]
-        
         self.lfi_payloads = [
             "../../../../etc/passwd",
             "../../../../windows/system32/drivers/etc/hosts",
@@ -88,7 +87,8 @@ class AdvancedWebScanner:
             if is_vulnerable:
                 if severity == "CRITICAL":
                     color = Fore.MAGENTA
-                    prefix = "[CRITICAL]"                elif severity == "HIGH":
+                    prefix = "[CRITICAL]"
+                elif severity == "HIGH":
                     color = Fore.RED
                     prefix = "[HIGH]"
                 elif severity == "MEDIUM":
@@ -481,17 +481,16 @@ class AdvancedWebScanner:
         
         end_time = time.time()
         duration = round(end_time - start_time, 2)
-        
-        # Summary
+          # Summary
         print(f"{Fore.CYAN}{'='*80}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}Scan completed in {duration} seconds{Style.RESET_ALL}")
         
         if self.vulnerabilities_found == 0:
-            print(f"{Fore.GREEN}🎉 No vulnerabilities found - Target appears secure!{Style.RESET_ALL}")
+            print(f"{Fore.GREEN}[SUCCESS] No vulnerabilities found - Target appears secure!{Style.RESET_ALL}")
         else:
             color = Fore.RED if self.vulnerabilities_found > 5 else Fore.YELLOW
             print(f"{color}[WARNING] Total vulnerabilities found: {self.vulnerabilities_found}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}💡 Review the findings above and implement appropriate fixes{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}[INFO] Review the findings above and implement appropriate fixes{Style.RESET_ALL}")
 
 def main():
     parser = argparse.ArgumentParser(description="Advanced Web Vulnerability Scanner v2.0")
