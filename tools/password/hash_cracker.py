@@ -63,7 +63,8 @@ class HashCracker:
                             print(f"\n{Fore.GREEN}[+] Password found: {word}{Style.RESET_ALL}")
                             print(f"Time elapsed: {elapsed:.2f} seconds")
                             print(f"Attempts: {self.attempts:,}")
-                            logging.info(f"Password found: {word}, Time: {elapsed:.2f}s, Attempts: {self.attempts}")                self.queue.task_done()
+                            logging.info(f"Password found: {word}, Time: {elapsed:.2f}s, Attempts: {self.attempts}")
+                self.queue.task_done()
             except Empty:
                 break
             except Exception as e:
